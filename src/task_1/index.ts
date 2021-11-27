@@ -15,7 +15,7 @@
 
     constructor(name: string, value: number, unit: string, type?: CurrencyType){
         if (value < 0 || name.length <= 0 || name === undefined || value === undefined || unit === undefined){
-            throw new Error()
+            throw new Error("Incorrect coin")
         }
         this.name = name;
         this.value = value;

@@ -10,23 +10,28 @@
 import { Currency } from "../task_1";
 import { ISecureVaultRequisites } from "../task_3";
 
-export class SmartContract implements IContract{
+abstract class Contract implements IContract{
     public id: number;
     public state: ContractState = ContractState.pending;
     public value: Currency;
     public receiver: ISecureVaultRequisites;
     public sender: ISecureVaultRequisites;
+    private readonly _timeout: number;
+
+    protected constructor(timeout: number) {
+        this._timeout = timeout;
+    }
+
+    public get timeout() {
+        return this._timeout;
+    }
 
     public closeTransfer(): void {
-        setTimeout(() => {
             this.state = ContractState.close;
-        }, 3000)
     }
 
     public rejectTransfer(): void {
-        setTimeout(() => {
             this.state = ContractState.rejected;
-        }, 3000)
     }
 
     public signAndTransfer(): void {
@@ -34,47 +39,21 @@ export class SmartContract implements IContract{
     }
 }
 
-export class BankingContract implements IContract{
-    public id: number;
-    public state: ContractState = ContractState.pending;
-    public value: Currency;
-    public receiver: ISecureVaultRequisites;
-    public sender: ISecureVaultRequisites;
-
-    public closeTransfer(): void {
-        this.state = ContractState.close;
-    }
-
-    public signAndTransfer(): void {
-        this.state = ContractState.transfer;
-    }
-
-    public rejectTransfer(): void {
-        this.state = ContractState.rejected;
+export class BankingContract extends Contract {
+    constructor() {
+        super(0);
     }
 }
 
-export class LogisticContract implements IContract{
-    public id: number;
-    public state: ContractState = ContractState.pending;
-    public value: Currency;
-    public receiver: ISecureVaultRequisites;
-    public sender: ISecureVaultRequisites;
-    
-    public closeTransfer(): void {
-        setTimeout(() => {
-            this.state = ContractState.close;
-        }, 6000)
+export class LogisticContract extends Contract {
+    constructor() {
+        super(6000);
     }
-
-    public rejectTransfer(): void {
-        setTimeout(() => {
-            this.state = ContractState.rejected;
-        }, 6000)
-    }
-
-    public signAndTransfer(): void {
-        this.state = ContractState.transfer;
+}
+ 
+export class SmartContract extends Contract {
+    constructor() {
+        super(3000);
     }
 }
 
@@ -110,7 +89,8 @@ export interface IContract{
     /**
      * Отмена исполнения контракта
      */
-    rejectTransfer: () => void
+    rejectTransfer: () => void,
+    timeout: number
 }
 
 export enum ContractState{
